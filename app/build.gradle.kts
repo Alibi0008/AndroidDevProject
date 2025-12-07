@@ -16,6 +16,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "API_KEY", "\"${project.findProperty("NEWS_API_KEY")}\"")    }
+
+    buildFeatures {
+        buildConfig = true
+        viewBinding = true
     }
 
     buildTypes {
@@ -58,6 +64,7 @@ dependencies {
 
     // 3. Асинхронность (Coroutines)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation(libs.androidx.activity)
 
     // 4. База данных (Room)
     val roomVersion = "2.6.1"
