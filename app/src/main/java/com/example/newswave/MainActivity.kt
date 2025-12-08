@@ -22,6 +22,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        findViewById<View>(R.id.fabSearch).setOnClickListener {
+            val intent = android.content.Intent(this, SearchActivity::class.java)
+            startActivity(intent)
+        }
+
         // 1. Создаем ViewModel (через фабрику, это правильный способ)
         val repository = NewsRepository()
         val viewModelProviderFactory = NewsViewModelProviderFactory(repository)
