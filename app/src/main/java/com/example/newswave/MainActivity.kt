@@ -35,6 +35,34 @@ class MainActivity : AppCompatActivity() {
         // 2. Настраиваем список (RecyclerView)
         setupRecyclerView()
 
+        // ... после setupRecyclerView()
+
+        // --- ЛОГИКА КАТЕГОРИЙ ---
+
+        // Находим кнопки (можно сделать красивее, но так понятнее всего)
+        val btnGeneral = findViewById<android.widget.Button>(R.id.btnGeneral)
+        val btnBusiness = findViewById<android.widget.Button>(R.id.btnBusiness)
+        val btnSports = findViewById<android.widget.Button>(R.id.btnSports)
+        val btnTech = findViewById<android.widget.Button>(R.id.btnTech)
+        val btnScience = findViewById<android.widget.Button>(R.id.btnScience)
+        val btnHealth = findViewById<android.widget.Button>(R.id.btnHealth)
+
+        // Функция-помощник, чтобы не писать одно и то же
+        fun onCategoryClick(category: String) {
+            // Показываем загрузку (можно добавить visual effect)
+            viewModel.getBreakingNews("us", category)
+        }
+
+        // Вешаем слушатели
+        btnGeneral.setOnClickListener { onCategoryClick("general") }
+        btnBusiness.setOnClickListener { onCategoryClick("business") }
+        btnSports.setOnClickListener { onCategoryClick("sports") }
+        btnTech.setOnClickListener { onCategoryClick("technology") }
+        btnScience.setOnClickListener { onCategoryClick("science") }
+        btnHealth.setOnClickListener { onCategoryClick("health") }
+
+        // ... остальной код (fabSearch, observe)
+
         // 3. Подписываемся на новости ("Слушаем прямой эфир")
         viewModel.breakingNews.observe(this, Observer { response ->
             if(response != null) {
