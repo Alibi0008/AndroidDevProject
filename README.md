@@ -36,10 +36,10 @@ This project is built using modern Android development practices to ensure scala
 The project development is divided into phases. Currently, we are in **Phase 1**.
 
 ### ✅ Phase 1: The Foundation (Current Goal)
-- [ ] **News Feed:** Display top headlines from NewsAPI.
-- [ ] **Categories:** Filter news by Sports, Business, Tech, etc.
-- [ ] **Search:** Search articles by keywords.
-- [ ] **Details View:** Read full articles via in-app WebView.
+- [x] **News Feed:** Display top headlines from NewsAPI.
+- [x] **Categories:** Filter news by Sports, Business, Tech, etc.
+- [x] **Search:** Search articles by keywords.
+- [x] **Details View:** Read full articles via in-app WebView.
 - [ ] **Offline Mode:** Save articles to "Favorites" using Room Database.
 
 ### 🚧 Phase 2: "Kiozk" Evolution (Planned)
