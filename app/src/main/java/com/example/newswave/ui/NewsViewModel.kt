@@ -12,20 +12,21 @@ class NewsViewModel(
     val newsRepository: NewsRepository
 ) : ViewModel() {
 
-    // 1. Главные новости
     val breakingNews: MutableLiveData<NewsResponse> = MutableLiveData()
     var breakingNewsPage = 1
+    var currentCategory = "general" // 👈 Запоминаем категорию (по умолчанию Общее)
 
-    // 2. Поиск (ПРОВЕРЬ, ЕСТЬ ЛИ ЭТОТ БЛОК)
     val searchNews: MutableLiveData<NewsResponse> = MutableLiveData()
     var searchNewsPage = 1
 
     init {
-        getBreakingNews("us")
+        getBreakingNews("us", "general") // Грузим общее при старте
     }
 
-    fun getBreakingNews(countryCode: String) = viewModelScope.launch {
-        val response = newsRepository.getBreakingNews(countryCode, breakingNewsPage)
+    // Теперь функция принимает категорию
+    fun getBreakingNews(countryCode: String, category: String) = viewModelScope.launch {
+        currentCategory = category // Обновляем текущую категорию
+        val response = newsRepository.getBreakingNews(countryCode, category, breakingNewsPage)
         breakingNews.postValue(response)
     }
 
