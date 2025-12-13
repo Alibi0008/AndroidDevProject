@@ -55,14 +55,12 @@ class SearchActivity : AppCompatActivity() {
             }
         }
 
-        // Следим за новостями
         viewModel.searchNews.observe(this, Observer { response ->
             if(response != null) {
                 newsAdapter.differ.submitList(response.articles)
             }
         })
 
-        // 👇 НОВОЕ: СЛЕДИМ ЗА ОШИБКАМИ
         viewModel.errorMessage.observe(this, Observer { message ->
             if (message != null) {
                 Toast.makeText(this, message, Toast.LENGTH_LONG).show()

@@ -30,30 +30,22 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Кнопка перехода к поиску
         findViewById<View>(R.id.fabSearch).setOnClickListener {
             val intent = Intent(this, SearchActivity::class.java)
             startActivity(intent)
         }
 
-        // --- ИСПРАВЛЕННЫЙ БЛОК ИНИЦИАЛИЗАЦИИ ---
 
-        // 1. Создаем базу данных
         val database = ArticleDatabase(this)
 
-        // 2. Создаем репозиторий и передаем базу
         val newsRepository = NewsRepository(database)
 
-        // 3. Создаем фабрику и ViewModel (ТОЛЬКО ОДИН РАЗ)
         val viewModelProviderFactory = NewsViewModelProviderFactory(newsRepository)
         viewModel = ViewModelProvider(this, viewModelProviderFactory)[NewsViewModel::class.java]
 
-        // --- КОНЕЦ ИСПРАВЛЕНИЯ ---
 
-        // 4. Настраиваем список
         setupRecyclerView()
 
-        // --- ЛОГИКА КАТЕГОРИЙ ---
         val btnGeneral = findViewById<Button>(R.id.btnGeneral)
         val btnBusiness = findViewById<Button>(R.id.btnBusiness)
         val btnSports = findViewById<Button>(R.id.btnSports)
@@ -72,7 +64,6 @@ class MainActivity : AppCompatActivity() {
         btnScience.setOnClickListener { onCategoryClick("science") }
         btnHealth.setOnClickListener { onCategoryClick("health") }
 
-        // 5. Подписываемся на новости
         viewModel.breakingNews.observe(this, Observer { response ->
             if(response != null) {
                 newsAdapter.differ.submitList(response.articles)

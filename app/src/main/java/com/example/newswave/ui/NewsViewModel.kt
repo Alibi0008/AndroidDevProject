@@ -22,7 +22,6 @@ class NewsViewModel(
     val searchNews: MutableLiveData<NewsResponse> = MutableLiveData()
     var searchNewsPage = 1
 
-    // 🆕 КАНАЛ ДЛЯ ОШИБОК (String - это текст ошибки)
     val errorMessage: MutableLiveData<String> = MutableLiveData()
 
     init {
@@ -35,7 +34,7 @@ class NewsViewModel(
             val response = newsRepository.getBreakingNews(countryCode, category, breakingNewsPage)
             breakingNews.postValue(response)
         } catch (t: Throwable) {
-            handleError(t) // Вызываем обработчик ошибок
+            handleError(t)
         }
     }
 
@@ -44,11 +43,10 @@ class NewsViewModel(
             val response = newsRepository.searchNews(searchQuery, searchNewsPage)
             searchNews.postValue(response)
         } catch (t: Throwable) {
-            handleError(t) // Вызываем обработчик ошибок
+            handleError(t)
         }
     }
 
-    // Вспомогательная функция, чтобы не дублировать код
     private fun handleError(t: Throwable) {
         when(t) {
             is IOException -> errorMessage.postValue("Нет соединения с Интернетом 📶")
