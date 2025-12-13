@@ -6,13 +6,11 @@
 
 ---
 
-## 📱 Screenshots (Work in Progress)
+## 📱 App Interface
 
-| News Feed | Article Details | Search | Saved (Offline) |
-|:---:|:---:|:---:|:---:|
-| ![Feed](https://via.placeholder.com/200x400?text=Feed+Screen) | ![Details](https://via.placeholder.com/200x400?text=Details+Screen) | ![Search](https://via.placeholder.com/200x400?text=Search+Screen) | ![Saved](https://via.placeholder.com/200x400?text=Saved+Screen) |
-
-*(Note: Screenshots will be updated as the UI is developed)*
+| **News Feed** | **Search & Discover** | **Offline Mode** |
+|:---:|:---:|:---:|
+| <img width="200" src="https://github.com/user-attachments/assets/ee772a4e-2654-4d0c-8123-a5ac18fd7fe9" /> | <img width="200" src="https://github.com/user-attachments/assets/032d3178-d535-4aeb-b5bb-c0c27dc2d4c3" /> | <img width="200" src="https://github.com/user-attachments/assets/ccec38f9-f266-46cc-8c72-bc2fd2c6fff0" /> |
 
 ---
 
@@ -40,7 +38,7 @@ The project development is divided into phases. Currently, we are in **Phase 1**
 - [x] **Categories:** Filter news by Sports, Business, Tech, etc.
 - [x] **Search:** Search articles by keywords.
 - [x] **Details View:** Read full articles via in-app WebView.
-- [ ] **Offline Mode:** Save articles to "Favorites" using Room Database.
+- [x] **Offline Mode:** Save articles to "Favorites" using Room Database.
 
 ### 🚧 Phase 2: "Kiozk" Evolution (Planned)
 - [ ] **Magazines Shelf:** Horizontal scroll for digital magazines.
@@ -78,7 +76,7 @@ The app uses a **Single Source of Truth** approach with a Repository that manage
 
 ## 🤝 Contribution
 
-This project is developed for the **Endterm Examination**.
+This project is developed for the **Final Examination**.
 * **Developer:** Tolegen Alibi
 
 ---
