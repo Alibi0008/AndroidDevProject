@@ -14,7 +14,7 @@ import com.google.android.material.snackbar.Snackbar
 
 class ArticleActivity : AppCompatActivity() {
 
-    lateinit var viewModel: NewsViewModel // 👈 Объявляем переменную
+    lateinit var viewModel: NewsViewModel
     lateinit var binding: ActivityArticleBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,24 +22,19 @@ class ArticleActivity : AppCompatActivity() {
         binding = ActivityArticleBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // --- 1. ИНИЦИАЛИЗАЦИЯ VIEWMODEL (ДОБАВЛЯЕМ ЭТОТ БЛОК) ---
         val newsRepository = NewsRepository(ArticleDatabase(this))
         val viewModelProviderFactory = NewsViewModelProviderFactory(newsRepository)
         viewModel = ViewModelProvider(this, viewModelProviderFactory).get(NewsViewModel::class.java)
-        // --------------------------------------------------------
 
-        // Получаем новость из Intent
         val article = intent.getSerializableExtra("article") as Article
 
-        // Настраиваем WebView
         binding.webView.apply {
             webViewClient = WebViewClient()
             article.url?.let { loadUrl(it) }
         }
 
-        // Настраиваем кнопку сохранения (FAB)
         binding.fab.setOnClickListener {
-            viewModel.saveArticle(article) // Теперь viewModel существует!
+            viewModel.saveArticle(article)
             Snackbar.make(binding.root, "Article Saved Successfully", Snackbar.LENGTH_SHORT).show()
         }
     }

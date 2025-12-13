@@ -24,21 +24,16 @@ class SavedNewsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_saved_news)
 
-        // 1. Инициализируем ViewModel (как обычно)
         val newsRepository = NewsRepository(ArticleDatabase(this))
         val viewModelProviderFactory = NewsViewModelProviderFactory(newsRepository)
         viewModel = ViewModelProvider(this, viewModelProviderFactory).get(NewsViewModel::class.java)
 
-        // 2. Настраиваем список
         setupRecyclerView()
 
-        // 3. СЛУШАЕМ БАЗУ ДАННЫХ 🔥
-        // Как только ты сохранишь новую статью, этот список обновится сам!
         viewModel.getSavedNews().observe(this, Observer { articles ->
             newsAdapter.differ.submitList(articles)
         })
 
-        // 4. СВАЙП ДЛЯ УДАЛЕНИЯ (БОНУСНАЯ ФИЧА) 🧹
         val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.UP or ItemTouchHelper.DOWN,
             ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
@@ -48,14 +43,11 @@ class SavedNewsActivity : AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                // Получаем позицию и саму статью
                 val position = viewHolder.adapterPosition
                 val article = newsAdapter.differ.currentList[position]
 
-                // Удаляем
                 viewModel.deleteArticle(article)
 
-                // Показываем кнопку "Отмена"
                 Snackbar.make(findViewById(R.id.rvSavedNews), "Article deleted", Snackbar.LENGTH_LONG).apply {
                     setAction("Undo") {
                         viewModel.saveArticle(article)
@@ -77,7 +69,6 @@ class SavedNewsActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@SavedNewsActivity)
         }
 
-        // Клик по статье -> Открыть читать
         newsAdapter.setOnItemClickListener { article ->
             val intent = Intent(this, ArticleActivity::class.java)
             intent.putExtra("article", article)

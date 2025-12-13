@@ -5,24 +5,22 @@ import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
-// 1. Как выглядит ответ сервера целиком
 data class NewsResponse(
     val status: String,
     val totalResults: Int,
     @SerializedName("articles")
-    val articles: MutableList<Article> // MutableList удобнее для добавления страниц
+    val articles: MutableList<Article>
 )
 
-// 2. СУЩНОСТЬ БАЗЫ ДАННЫХ (Таблица)
 @Entity(
     tableName = "articles"
 )
 data class Article(
-    @PrimaryKey(autoGenerate = true) // 👈 ГЛАВНОЕ: Уникальный ID для базы (генерируется сам)
+    @PrimaryKey(autoGenerate = true)
     var id: Int? = null,
 
     @SerializedName("source")
-    val source: Source?, // Room сохранит это благодаря нашему TypeConverter
+    val source: Source?,
 
     @SerializedName("author")
     val author: String?,
@@ -45,7 +43,6 @@ data class Article(
     @SerializedName("content")
     val content: String?
 ) : Serializable {
-    // Переопределяем hashCode и equals, чтобы корректно работал DiffUtil в адаптере
     override fun hashCode(): Int {
         var result = id.hashCode()
         if(url.isNullOrEmpty()){
@@ -55,7 +52,6 @@ data class Article(
     }
 }
 
-// 3. Источник новости
 data class Source(
     val id: String?,
     val name: String
