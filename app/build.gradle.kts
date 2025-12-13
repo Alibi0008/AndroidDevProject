@@ -1,23 +1,26 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
+    id("kotlin-parcelize")
 }
 
 android {
     namespace = "com.example.newswave"
-    compileSdk = 36
+    compileSdk = 34 // Оставляем стабильный 34
 
     defaultConfig {
         applicationId = "com.example.newswave"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "API_KEY", "\"${project.findProperty("NEWS_API_KEY")}\"")    }
+        // API Key
+        buildConfigField("String", "API_KEY", "\"${project.findProperty("NEWS_API_KEY")}\"")
+    }
 
     buildFeatures {
         buildConfig = true
@@ -34,21 +37,33 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "1.8"
+    }
+
+    // 👇 ЭТОТ БЛОК ЛЕЧИТ ТВОЮ ОШИБКУ
+    // Мы принудительно заставляем Gradle использовать стабильные версии,
+    // даже если какая-то библиотека хочет версию новее.
+    configurations.all {
+        resolutionStrategy {
+            force("androidx.core:core-ktx:1.12.0")
+            force("androidx.core:core:1.12.0")
+            force("androidx.activity:activity-ktx:1.8.2")
+            force("androidx.activity:activity:1.8.2")
+        }
     }
 }
 
 dependencies {
-    // --- БАЗОВЫЕ БИБЛИОТЕКИ (Мы прописали их явно, чтобы не путаться с libs) ---
+    // --- СТАБИЛЬНЫЕ ВЕРСИИ (Для SDK 34) ---
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.activity:activity-ktx:1.8.2") // Важно для ViewModel
+    implementation("androidx.activity:activity-ktx:1.8.2")
 
     // --- НАШИ НОВЫЕ ИНСТРУМЕНТЫ ---
 
@@ -64,7 +79,6 @@ dependencies {
 
     // 3. Асинхронность (Coroutines)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation(libs.androidx.activity)
 
     // 4. База данных (Room)
     val roomVersion = "2.6.1"
@@ -78,7 +92,7 @@ dependencies {
     // 6. Браузер
     implementation("androidx.browser:browser:1.8.0")
 
-    // Тесты (Оставляем стандартные)
+    // Тесты
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
