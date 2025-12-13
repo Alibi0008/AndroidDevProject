@@ -1,12 +1,15 @@
 package com.example.newswave.ui
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.newswave.data.NewsRepository
+import com.example.newswave.model.Article
 import com.example.newswave.model.NewsResponse
 import kotlinx.coroutines.launch
 import retrofit2.Response
+import java.io.IOException
 
 class NewsViewModel(
     val newsRepository: NewsRepository
@@ -14,25 +17,53 @@ class NewsViewModel(
 
     val breakingNews: MutableLiveData<NewsResponse> = MutableLiveData()
     var breakingNewsPage = 1
-    var currentCategory = "general" // 👈 Запоминаем категорию (по умолчанию Общее)
+    var currentCategory = "general"
 
     val searchNews: MutableLiveData<NewsResponse> = MutableLiveData()
     var searchNewsPage = 1
 
+    // 🆕 КАНАЛ ДЛЯ ОШИБОК (String - это текст ошибки)
+    val errorMessage: MutableLiveData<String> = MutableLiveData()
+
     init {
-        getBreakingNews("us", "general") // Грузим общее при старте
+        getBreakingNews("us", "general")
     }
 
-    // Теперь функция принимает категорию
     fun getBreakingNews(countryCode: String, category: String) = viewModelScope.launch {
-        currentCategory = category // Обновляем текущую категорию
-        val response = newsRepository.getBreakingNews(countryCode, category, breakingNewsPage)
-        breakingNews.postValue(response)
+        currentCategory = category
+        try {
+            val response = newsRepository.getBreakingNews(countryCode, category, breakingNewsPage)
+            breakingNews.postValue(response)
+        } catch (t: Throwable) {
+            handleError(t) // Вызываем обработчик ошибок
+        }
     }
 
-    // 3. Функция поиска (ОНА ДОЛЖНА БЫТЬ ТУТ)
     fun searchNews(searchQuery: String) = viewModelScope.launch {
-        val response = newsRepository.searchNews(searchQuery, searchNewsPage)
-        searchNews.postValue(response)
+        try {
+            val response = newsRepository.searchNews(searchQuery, searchNewsPage)
+            searchNews.postValue(response)
+        } catch (t: Throwable) {
+            handleError(t) // Вызываем обработчик ошибок
+        }
+    }
+
+    // Вспомогательная функция, чтобы не дублировать код
+    private fun handleError(t: Throwable) {
+        when(t) {
+            is IOException -> errorMessage.postValue("Нет соединения с Интернетом 📶")
+            else -> errorMessage.postValue("Ошибка: ${t.localizedMessage}")
+        }
+        Log.e("NewsViewModel", "Error: ${t.message}")
+    }
+
+    fun saveArticle(article: Article) = viewModelScope.launch {
+        newsRepository.upsert(article)
+    }
+
+    fun getSavedNews() = newsRepository.getSavedNews()
+
+    fun deleteArticle(article: Article) = viewModelScope.launch {
+        newsRepository.deleteArticle(article)
     }
 }
