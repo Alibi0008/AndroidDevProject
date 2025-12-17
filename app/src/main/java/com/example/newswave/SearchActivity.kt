@@ -16,6 +16,7 @@ import com.example.newswave.data.NewsRepository
 import com.example.newswave.db.ArticleDatabase
 import com.example.newswave.ui.NewsViewModel
 import com.example.newswave.ui.NewsViewModelProviderFactory
+import com.example.newswave.util.CountryPreferences
 
 class SearchActivity : AppCompatActivity() {
 
@@ -28,7 +29,10 @@ class SearchActivity : AppCompatActivity() {
 
         val database = ArticleDatabase(this)
         val newsRepository = NewsRepository(database)
-        val viewModelProviderFactory = NewsViewModelProviderFactory(newsRepository)
+
+        val countryPreferences = CountryPreferences(this)
+        val viewModelProviderFactory = NewsViewModelProviderFactory(newsRepository, countryPreferences)
+
         viewModel = ViewModelProvider(this, viewModelProviderFactory).get(NewsViewModel::class.java)
 
         setupRecyclerView()

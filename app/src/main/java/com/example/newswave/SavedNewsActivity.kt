@@ -13,6 +13,7 @@ import com.example.newswave.data.NewsRepository
 import com.example.newswave.db.ArticleDatabase
 import com.example.newswave.ui.NewsViewModel
 import com.example.newswave.ui.NewsViewModelProviderFactory
+import com.example.newswave.util.CountryPreferences
 import com.google.android.material.snackbar.Snackbar
 
 class SavedNewsActivity : AppCompatActivity() {
@@ -24,31 +25,39 @@ class SavedNewsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_saved_news)
 
-        val newsRepository = NewsRepository(ArticleDatabase(this))
-        val viewModelProviderFactory = NewsViewModelProviderFactory(newsRepository)
+        val database = ArticleDatabase(this)
+        val newsRepository = NewsRepository(database)
+
+        val countryPreferences = CountryPreferences(this)
+        val viewModelProviderFactory = NewsViewModelProviderFactory(newsRepository, countryPreferences)
+
         viewModel = ViewModelProvider(this, viewModelProviderFactory).get(NewsViewModel::class.java)
 
         setupRecyclerView()
 
-        viewModel.getSavedNews().observe(this, Observer { articles ->
-            newsAdapter.differ.submitList(articles)
-        })
+        newsAdapter.setOnItemClickListener { article ->
+            val intent = Intent(this, ArticleActivity::class.java)
+            intent.putExtra("article", article)
+            startActivity(intent)
+        }
 
         val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.UP or ItemTouchHelper.DOWN,
             ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
         ) {
-            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
                 return true
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
                 val article = newsAdapter.differ.currentList[position]
-
                 viewModel.deleteArticle(article)
-
-                Snackbar.make(findViewById(R.id.rvSavedNews), "Article deleted", Snackbar.LENGTH_LONG).apply {
+                Snackbar.make(findViewById(android.R.id.content), "Article deleted", Snackbar.LENGTH_LONG).apply {
                     setAction("Undo") {
                         viewModel.saveArticle(article)
                     }
@@ -57,22 +66,21 @@ class SavedNewsActivity : AppCompatActivity() {
             }
         }
 
-        ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(findViewById(R.id.rvSavedNews))
+        ItemTouchHelper(itemTouchHelperCallback).apply {
+            attachToRecyclerView(findViewById(R.id.rvSavedNews))
+        }
+
+        viewModel.getSavedNews().observe(this, Observer { articles ->
+            newsAdapter.differ.submitList(articles)
+        })
     }
 
     private fun setupRecyclerView() {
         newsAdapter = NewsAdapter()
         val rvSavedNews = findViewById<RecyclerView>(R.id.rvSavedNews)
-
         rvSavedNews.apply {
             adapter = newsAdapter
             layoutManager = LinearLayoutManager(this@SavedNewsActivity)
-        }
-
-        newsAdapter.setOnItemClickListener { article ->
-            val intent = Intent(this, ArticleActivity::class.java)
-            intent.putExtra("article", article)
-            startActivity(intent)
         }
     }
 }

@@ -7,12 +7,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.newswave.data.NewsRepository
 import com.example.newswave.model.Article
 import com.example.newswave.model.NewsResponse
+import com.example.newswave.util.CountryPreferences
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import java.io.IOException
 
 class NewsViewModel(
-    val newsRepository: NewsRepository
+    val newsRepository: NewsRepository,
+    val countryPreferences: CountryPreferences
 ) : ViewModel() {
 
     val breakingNews: MutableLiveData<NewsResponse> = MutableLiveData()
@@ -25,14 +27,30 @@ class NewsViewModel(
     val errorMessage: MutableLiveData<String> = MutableLiveData()
 
     init {
-        getBreakingNews("us", "general")
+        val savedCountry = countryPreferences.getCountry()
+        getBreakingNews(savedCountry, "general")
     }
 
-    fun getBreakingNews(countryCode: String, category: String) = viewModelScope.launch {
+    fun getBreakingNews(countryCode: String, category: String = currentCategory) = viewModelScope.launch {
         currentCategory = category
+        breakingNews.postValue(null)
+
         try {
-            val response = newsRepository.getBreakingNews(countryCode, category, breakingNewsPage)
-            breakingNews.postValue(response)
+            if (countryCode == "ru") {
+                val query = when(category) {
+                    "sports" -> "Спорт"
+                    "technology" -> "Технологии"
+                    "business" -> "Бизнес"
+                    "science" -> "Наука"
+                    "health" -> "Здоровье"
+                    else -> "Новости"
+                }
+                val response = newsRepository.searchNews(query, breakingNewsPage)
+                breakingNews.postValue(response)
+            } else {
+                val response = newsRepository.getBreakingNews("us", category, breakingNewsPage)
+                breakingNews.postValue(response)
+            }
         } catch (t: Throwable) {
             handleError(t)
         }
