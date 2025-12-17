@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -15,11 +18,13 @@ import com.example.newswave.data.NewsRepository
 import com.example.newswave.db.ArticleDatabase
 import com.example.newswave.ui.NewsViewModel
 import com.example.newswave.ui.NewsViewModelProviderFactory
+import com.example.newswave.util.CountryPreferences
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var viewModel: NewsViewModel
     lateinit var newsAdapter: NewsAdapter
+    lateinit var countryPreferences: CountryPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,16 +40,19 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-
         val database = ArticleDatabase(this)
-
         val newsRepository = NewsRepository(database)
+        countryPreferences = CountryPreferences(this) // 👇 Инициализируем настройки
 
-        val viewModelProviderFactory = NewsViewModelProviderFactory(newsRepository)
+        val viewModelProviderFactory = NewsViewModelProviderFactory(newsRepository, countryPreferences)
         viewModel = ViewModelProvider(this, viewModelProviderFactory)[NewsViewModel::class.java]
 
-
         setupRecyclerView()
+
+        val btnSettings = findViewById<ImageButton>(R.id.btnSettings)
+        btnSettings.setOnClickListener {
+            showCountryDialog()
+        }
 
         val btnGeneral = findViewById<Button>(R.id.btnGeneral)
         val btnBusiness = findViewById<Button>(R.id.btnBusiness)
@@ -54,7 +62,8 @@ class MainActivity : AppCompatActivity() {
         val btnHealth = findViewById<Button>(R.id.btnHealth)
 
         fun onCategoryClick(category: String) {
-            viewModel.getBreakingNews("us", category)
+            val currentCountry = countryPreferences.getCountry()
+            viewModel.getBreakingNews(currentCountry, category)
         }
 
         btnGeneral.setOnClickListener { onCategoryClick("general") }
@@ -71,6 +80,30 @@ class MainActivity : AppCompatActivity() {
                 Log.e("MainActivity", "Ошибка: Ответ пустой")
             }
         })
+
+        viewModel.errorMessage.observe(this, Observer { message ->
+            if (message != null) {
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+            }
+        })
+    }
+
+    private fun showCountryDialog() {
+        val languages = arrayOf("🇺🇸 English (USA)", "🇷🇺 Русский (Russia)")
+        val codes = arrayOf("us", "ru")
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Select Content Language")
+        builder.setItems(languages) { _, which ->
+            val selectedCountry = codes[which]
+
+            countryPreferences.saveCountry(selectedCountry)
+
+            viewModel.getBreakingNews(selectedCountry, "general")
+
+            Toast.makeText(this, "Language changed to: ${languages[which]}", Toast.LENGTH_SHORT).show()
+        }
+        builder.show()
     }
 
     private fun setupRecyclerView() {
